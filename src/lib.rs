@@ -1,3 +1,3 @@
-mod app;
-mod element;
-mod xcb;
+pub mod app;
+pub mod element;
+pub mod xcb;
