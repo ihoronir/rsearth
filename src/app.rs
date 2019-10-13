@@ -1,23 +1,25 @@
 use std::time::{Instant, Duration};
 use std::thread::sleep;
-use crate::scene;
+
+use crate::element;
 
 // TODO: AppBuilder 作る
 
-pub struct App<'a> {
+pub struct App {
     connection: xcb::Connection,
-    screen: xcb::Screen<'a>,
+    screen_num: i32,
     window: xcb::Window,
-    pub elements: Vec<scene::Scene>
+    pub scene: Scene
 }
 
-impl<'a> App<'a> {
+impl App {
 
     /// Constructor
-    pub fn new() -> Self {
+    pub fn new(scene: Scene) -> Self {
         let (connection, screen_num) = xcb::Connection::connect(None).expect("Failed to connect.");
+
         let setup = connection.get_setup();
-        let screen: xcb::Screen<'a> = setup.roots().nth(screen_num as usize).expect("Failed to get root");
+        let screen: xcb::Screen = setup.roots().nth(screen_num as usize).expect("Failed to get root");
 
         let window = connection.generate_id();
         xcb::create_window(
@@ -39,9 +41,9 @@ impl<'a> App<'a> {
 
         Self {
             connection,
-            screen,
+            screen_num,
             window,
-            elements: vec![]
+            scene,
         }
     }
 
@@ -52,10 +54,22 @@ impl<'a> App<'a> {
         loop {
             let start = Instant::now();
 
-            self.elements.iter().for_each(|element| element.render(self.connection));
+            //self.elements.iter().for_each(|element| element.render(self.connection));
             self.connection.flush();
             let dur = start.elapsed();
             sleep(one_frame - dur);
         }
+    }
+}
+
+
+pub struct Scene {
+    elements: Vec<Box<element::Element>>
+}
+
+impl Scene {
+    fn render(&self, app: App) {
+        self.elements.iter().for_each(|element| element.update(app));
+        self.elements.iter().for_each(|element| element.draw(app));
     }
 }

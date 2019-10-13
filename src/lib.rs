@@ -1,4 +1,5 @@
 pub mod app;
-pub mod scene;
 pub mod element;
-pub mod xcb;
+pub mod event;
+pub mod graphics;
+pub mod geom;
