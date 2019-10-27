@@ -5,5 +5,8 @@ authors = ["shioleap <shioleap@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-xcb = "0.8"
+
+[dependencies.amethyst]
+version="0.13"
+features=["vulkan"]
 
