@@ -4,7 +4,7 @@ use amethyst::{
     assets::{AssetStorage, Loader, Handle},
     core::{transform::Transform},
     prelude::*,
-    ecs::prelude::{Component, DenseVecStorage, Entity},
+    ecs::prelude::{Component, DenseVecStorage},
     renderer::{Camera, ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat, Texture},
 };
 
@@ -21,28 +21,30 @@ impl SimpleState for Earth {
         let world = data.world;
         let creature_sprite_sheet_handle = load_creature_sprite_sheet(world);
 
-        world.register::<CreatureA>();
-
         initialise_creatures(world, creature_sprite_sheet_handle);
         initialise_camera(world);
     }
 }
 
-// Creature A
+// Creature
 
 #[derive(Default)]
-struct CreatureA;
+pub struct Creature {
+   pub  life: u32
+}
 
-impl Component for CreatureA {
+impl Component for Creature {
     type Storage = DenseVecStorage<Self>;
 }
 
-// Creature B
+// Plant
 
 #[derive(Default)]
-struct CreatureB;
+pub struct Plant {
+    pub drop_seed_count: u32
+}
 
-impl Component for CreatureB {
+impl Component for Plant {
     type Storage = DenseVecStorage<Self>;
 }
 
@@ -61,30 +63,22 @@ fn initialise_camera(world: &mut World) {
 
 fn initialise_creatures(world: &mut World, sprite_sheet_handle: Handle<SpriteSheet>) {
 
-    let sprite_render_a = SpriteRender {
+    let sprite_render = SpriteRender {
         sprite_sheet: sprite_sheet_handle.clone(),
-        sprite_number: 0
+        sprite_number: 2
     };
 
-    let sprite_render_b = SpriteRender {
-        sprite_sheet: sprite_sheet_handle.clone(),
-        sprite_number: 1
-    };
 
-    for i in 0..20 {
-        for j in 0..20 {
+    let mut transform = Transform::default();
+    transform.set_translation_xyz(GROUND_WIDTH  / 2.0, GROUND_HEIGHT / 2.0, 0.0);
 
-            let mut transform = Transform::default();
-            transform.set_translation_xyz(GROUND_WIDTH  / 20.0 * i as f32, GROUND_HEIGHT / 20.0 * j as f32, 0.0);
-
-            world
-                .create_entity()
-                .with(sprite_render_a.clone())
-                .with(CreatureA::default())
-                .with(transform)
-                .build();
-        }
-    }
+    world
+        .create_entity()
+        .with(sprite_render.clone())
+        .with(Creature{life: 200})
+        .with(Plant{drop_seed_count: 100})
+        .with(transform)
+        .build();
 
 }
 
