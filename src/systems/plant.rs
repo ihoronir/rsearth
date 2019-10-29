@@ -3,7 +3,7 @@ use rand::Rng;
 use amethyst::{
     core::{Transform, SystemDesc},
     derive::SystemDesc,
-    ecs::{Join, Read, ReadStorage, System, SystemData, World, Entities, WriteStorage},
+    ecs::{Join, /*Read, ReadStorage,*/ System, SystemData, World, Entities, WriteStorage},
     renderer::SpriteRender
 };
 use crate::earth::{Creature, Plant};
@@ -38,7 +38,7 @@ impl<'s> System<'s> for PlantSystem {
             if plant.drop_seed_count == 0 {
                 let difference = {
                     let r = PI * 2.0 * rng.gen::<f32>();
-                    let s = 20.0 * (rng.gen::<f32>().sqrt());
+                    let s = 40.0 * (rng.gen::<f32>().sqrt());
                     (s * r.cos(), s * r.sin())
                 };
                 let mut new_transform = Transform::default();

@@ -15,12 +15,12 @@ impl<'s> System<'s> for CreatureSystem {
         WriteStorage<'s, Creature>,
     );
 
-    fn run(&mut self, (mut entities, mut creatures): Self::SystemData) {
+    fn run(&mut self, (entities, mut creatures): Self::SystemData) {
         for (entity, creature) in (&*entities, &mut creatures).join() {
             if creature.life != 0 {
                 creature.life -= 1;
             } else {
-                entities.delete(entity);
+                entities.delete(entity).expect("Failed to delete creature.");
             }
         }
     }

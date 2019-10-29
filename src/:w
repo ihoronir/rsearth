@@ -56,9 +56,7 @@ impl Component for Plant {
 }
 
 // Herbivoreo
-// Plant を食べることで Plant が持っていた NUTRITION を吸収
-// 自身の NUTRITION が INITIAL_NUTRITION * 2 になったら子供を産む。
-// 子供を産んだら INITIAL_NUTRITION 減る。
+// Plant を食べることで Plant が持っていた
 
 pub const HERBIVORE_MIN_LIFE: u32 = 180;
 pub const HERBIVORE_MAX_LIFE: u32 = 220;

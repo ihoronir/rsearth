@@ -25,6 +25,7 @@ fn main() -> amethyst::Result<()> {
         .with_bundle(TransformBundle::new())?
         .with(systems::CreatureSystem, "creature_system", &[])
         .with(systems::PlantSystem, "plant_system", &["creature_system"])
+        .with(systems::HerbivoreSystem, "herbivore_system", &["creature_system"])
         .with_bundle(
             RenderingBundle::<DefaultBackend>::new()
                 .with_plugin(
