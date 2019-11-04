@@ -63,14 +63,14 @@ impl Component for Plant {
 pub const HERBIVORE_MIN_LIFE: u32 = 180;
 pub const HERBIVORE_MAX_LIFE: u32 = 220;
 pub const HERBIVORE_INITIAL_NUTRITION: u32 = 0;
-pub const HERBIVORE_BOID_SEPARATION: f32 = 1.0;
-pub const HERBIVORE_BOID_COHERENCE: f32 = 1.0;
-pub const HERBIVORE_BOID_ALIGNMENT: f32 = 1.0;
-pub const HERBIVORE_BOID_GRAVITY: f32 = 1.0;
-pub const HERBIVORE_BOID_MIN_SPEED: f32 = 1.0;
-pub const HERBIVORE_BOID_MAX_SPEED: f32 = 1.0;
-pub const HERBIVORE_BOID_VISIBILITY_ANGLE: f32 = 1.0;
-pub const HERBIVORE_BOID_VISIBILITY_LENGTH: f32 = 1.0;
+pub const HERBIVORE_BOID_SEPARATION: f32 = 1.0;        // 間隔をとろうとする度合い
+pub const HERBIVORE_BOID_COHERENCE: f32 = 1.0;         // 群れの中心に向かう度合い
+pub const HERBIVORE_BOID_ALIGNMENT: f32 = 1.0;         // 整列しようとする度合い
+pub const HERBIVORE_BOID_GRAVITY: f32 = 1.0;           // 餌に引き着く度合い
+pub const HERBIVORE_BOID_MIN_SPEED: f32 = 1.0;         // 最高速度
+pub const HERBIVORE_BOID_MAX_SPEED: f32 = 1.0;         // 最低速度
+pub const HERBIVORE_BOID_VISIBILITY_ANGLE: f32 = 1.0;  // 見えている角度
+pub const HERBIVORE_BOID_VISIBILITY_LENGTH: f32 = 1.0; // 見えている長さ
 
 #[derive(Default)]
 pub struct Herbivore;
@@ -106,22 +106,22 @@ fn initialise_creatures(world: &mut World, sprite_sheet_handle: Handle<SpriteShe
     {
         // Plants
 
-        //let sprite_render = SpriteRender {
-        //    sprite_sheet: sprite_sheet_handle.clone(),
-        //    sprite_number: 2
-        //};
+        let sprite_render = SpriteRender {
+            sprite_sheet: sprite_sheet_handle.clone(),
+            sprite_number: 2
+        };
 
 
-        //let mut transform = Transform::default();
-        //transform.set_translation_xyz(GROUND_WIDTH  / 2.0, GROUND_HEIGHT / 2.0, 0.0);
+        let mut transform = Transform::default();
+        transform.set_translation_xyz(GROUND_WIDTH  / 2.0, GROUND_HEIGHT / 2.0, 0.0);
 
-        //world
-        //    .create_entity()
-        //    .with(sprite_render.clone())
-        //    .with(Creature{life: 200})
-        //    .with(Plant{drop_seed_count: 100})
-        //    .with(transform)
-        //    .build();
+        world
+            .create_entity()
+            .with(sprite_render.clone())
+            .with(Creature{life: 200})
+            .with(Plant{drop_seed_count: 100})
+            .with(transform)
+            .build();
     }
 
     {
@@ -141,7 +141,7 @@ fn initialise_creatures(world: &mut World, sprite_sheet_handle: Handle<SpriteShe
                 world
                     .create_entity()
                     .with(sprite_render.clone())
-                    .with(Creature{life: 2000})
+                    .with(Creature{life: 20000})
                     .with(Herbivore::default())
                     .with(transform)
                     .build();
