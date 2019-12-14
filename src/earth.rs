@@ -31,7 +31,8 @@ impl SimpleState for Earth {
 
 #[derive(Default)]
 pub struct Creature {
-   pub  life: u32
+   pub  life: u32,
+   pub nutrition: u32
 }
 
 impl Component for Creature {
@@ -43,14 +44,12 @@ impl Component for Creature {
 // 自身の NUTRITION が INITIAL_NUTRITION * 2 になったら種を撒く。
 // 種を撒いたら INITIAL_NUTRITION 減る。
 
-pub const PLANT_MIN_LIFE: u32 = 180;
-pub const PLANT_MAX_LIFE: u32 = 220;
-pub const PLANT_INITIAL_NUTRITION: u32 = 0;
+pub const PLANT_MIN_LIFE: u32 = 180;        // 寿命の下限値
+pub const PLANT_MAX_LIFE: u32 = 220;        // 寿命の上限値
+pub const PLANT_INITIAL_NUTRITION: u32 = 400;
 
 #[derive(Default)]
-pub struct Plant {
-    pub drop_seed_count: u32
-}
+pub struct Plant;
 
 impl Component for Plant {
     type Storage = VecStorage<Self>;
@@ -64,13 +63,14 @@ impl Component for Plant {
 pub const HERBIVORE_MIN_LIFE: u32 = 180;
 pub const HERBIVORE_MAX_LIFE: u32 = 220;
 pub const HERBIVORE_INITIAL_NUTRITION: u32 = 0;
+pub const HERBIVORE_REACHABLE_RANGE: f32 = 8.0;
 pub const HERBIVORE_BOID_SEPARATION_DISTANCE: f32 = 40.0; // 最適な間隔
-pub const HERBIVORE_BOID_SEPARATION: f32 = 200.0;           // 間隔をとろうとする度合い
+pub const HERBIVORE_BOID_SEPARATION: f32 = 200.0;         // 間隔をとろうとする度合い
 pub const HERBIVORE_BOID_COHERENCE: f32 = 0.8;            // 群れの中心に向かう度合い
-pub const HERBIVORE_BOID_ALIGNMENT: f32 = 0.02;            // 整列しようとする度合い
+pub const HERBIVORE_BOID_ALIGNMENT: f32 = 0.02;           // 整列しようとする度合い
 pub const HERBIVORE_BOID_GRAVITY: f32 = 1.0;              // 餌に引き着く度合い
-pub const HERBIVORE_BOID_MAX_SPEED: f32 = 120.0;            // 最高速度
-pub const HERBIVORE_BOID_VISIBILITY_LENGTH: f32 = 70.0;    // 見えている長さ
+pub const HERBIVORE_BOID_MAX_SPEED: f32 = 120.0;          // 最高速度
+pub const HERBIVORE_BOID_VISIBILITY_LENGTH: f32 = 70.0;   // 見えている長さ
 
 #[derive(Default)]
 pub struct Herbivore {
@@ -93,6 +93,61 @@ impl Component for Carnivore {
 
 // Initialises
 
+fn initialise_creatures(world: &mut World, sprite_sheet_handle: Handle<SpriteSheet>) {
+
+    let mut rng = rand::thread_rng();
+
+    {
+        // Plants
+
+        let sprite_render = SpriteRender {
+            sprite_sheet: sprite_sheet_handle.clone(),
+            sprite_number: 2
+        };
+
+
+        let mut transform = Transform::default();
+        transform.set_translation_xyz(GROUND_WIDTH  / 2.0, GROUND_HEIGHT / 2.0, 0.0);
+
+        world
+            .create_entity()
+            .with(sprite_render.clone())
+            .with(Creature{life: rng.gen_range(PLANT_MIN_LIFE, PLANT_MAX_LIFE), nutrition: PLANT_INITIAL_NUTRITION})
+            .with(Plant::default())
+            .with(transform)
+            .build();
+    }
+
+    {
+        // Herbivore
+
+        let sprite_render = SpriteRender {
+            sprite_sheet: sprite_sheet_handle.clone(),
+            sprite_number: 1
+        };
+
+        for _ in 0..10 {
+
+            let mut transform = Transform::default();
+            transform.set_translation_xyz(rng.gen_range(0.0, GROUND_WIDTH), rng.gen_range(0.0, GROUND_HEIGHT), 0.0);
+
+            world
+                .create_entity()
+                .with(sprite_render.clone())
+                .with(Creature{life: 20000, nutrition: 0})
+                .with(
+                    Herbivore{
+                        vx: rng.gen_range(-40.0, 40.0),
+                        vy: rng.gen_range(-40.0, 40.0)
+                    }
+                )
+                .with(transform)
+                .build();
+        }
+    }
+
+}
+
 fn initialise_camera(world: &mut World) {
     let mut transform = Transform::default();
     transform.set_translation_xyz(GROUND_WIDTH * 0.5, GROUND_HEIGHT * 0.5, 1.0);
@@ -102,62 +157,6 @@ fn initialise_camera(world: &mut World) {
         .with(Camera::standard_2d(GROUND_WIDTH, GROUND_HEIGHT))
         .with(transform)
         .build();
-}
-
-fn initialise_creatures(world: &mut World, sprite_sheet_handle: Handle<SpriteSheet>) {
-
-    //{
-    //    // Plants
-
-    //    let sprite_render = SpriteRender {
-    //        sprite_sheet: sprite_sheet_handle.clone(),
-    //        sprite_number: 2
-    //    };
-
-
-    //    let mut transform = Transform::default();
-    //    transform.set_translation_xyz(GROUND_WIDTH  / 2.0, GROUND_HEIGHT / 2.0, 0.0);
-
-    //    world
-    //        .create_entity()
-    //        .with(sprite_render.clone())
-    //        .with(Creature{life: 200})
-    //        .with(Plant{drop_seed_count: 100})
-    //        .with(transform)
-    //        .build();
-    //}
-
-    {
-        // Herbivore
-        let mut rng = rand::thread_rng();
-
-        let sprite_render = SpriteRender {
-            sprite_sheet: sprite_sheet_handle.clone(),
-            sprite_number: 1
-        };
-
-        for _ in 0..13 {
-            for _ in 0..13 {
-
-                let mut transform = Transform::default();
-                transform.set_translation_xyz(rng.gen_range(0.0, GROUND_WIDTH), rng.gen_range(0.0, GROUND_HEIGHT), 0.0);
-
-                world
-                    .create_entity()
-                    .with(sprite_render.clone())
-                    .with(Creature{life: 20000})
-                    .with(
-                        Herbivore{
-                            vx: rng.gen_range(-40.0, 40.0),
-                            vy: rng.gen_range(-40.0, 40.0)
-                        }
-                    )
-                    .with(transform)
-                    .build();
-            }
-        }
-    }
-
 }
 
 // Sprite Sheet Loader

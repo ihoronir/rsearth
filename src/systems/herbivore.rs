@@ -103,8 +103,8 @@ impl<'s> System<'s> for HerbivoreSystem {
             herbivore.vx += ax;
             herbivore.vy += ay;
 
+            // 最高スピード以下に抑える
             let v_norm = (herbivore.vx * herbivore.vx + herbivore.vy * herbivore.vy).sqrt();
-
             if HERBIVORE_BOID_MAX_SPEED < v_norm {
                 herbivore.vx = herbivore.vx * HERBIVORE_BOID_MAX_SPEED / v_norm;
                 herbivore.vy = herbivore.vy * HERBIVORE_BOID_MAX_SPEED / v_norm;

@@ -6,7 +6,7 @@ use amethyst::{
     ecs::{Join, /*Read, ReadStorage,*/ System, SystemData, World, Entities, WriteStorage},
     renderer::SpriteRender
 };
-use crate::earth::{Creature, Plant};
+use crate::earth::{Creature, Plant, PLANT_MIN_LIFE, PLANT_MAX_LIFE, PLANT_INITIAL_NUTRITION};
 
 
 #[derive(SystemDesc)]
@@ -34,8 +34,10 @@ impl<'s> System<'s> for PlantSystem {
     ) {
         let mut rng = rand::thread_rng();
         let mut new_plants: Vec<(Transform, SpriteRender)> = vec![];
-        for (plant, transform, sprite_render) in (&mut plants, &mut transforms, &mut sprite_renders).join() {
-            if plant.drop_seed_count == 0 {
+
+        for (creature, _, transform, sprite_render) in (&mut creatures, &mut plants, &mut transforms, &mut sprite_renders).join() {
+
+            if creature.nutrition > PLANT_INITIAL_NUTRITION * 2 {
                 let difference = {
                     let r = PI * 2.0 * rng.gen::<f32>();
                     let s = 40.0 * (rng.gen::<f32>().sqrt());
@@ -46,17 +48,17 @@ impl<'s> System<'s> for PlantSystem {
                 let new_sprite_render = sprite_render.clone();
                 new_plants.push((new_transform, new_sprite_render));
 
-                plant.drop_seed_count = rng.gen_range(100, 120);
-            } else {
-                plant.drop_seed_count -= 1;
-            }
+                creature.nutrition -= PLANT_INITIAL_NUTRITION;
+
+            } 
         }
+
         for (transform, sprite_render) in new_plants {
             entities
                 .build_entity()
                 .with(sprite_render, &mut sprite_renders)
-                .with(Creature{life: 1000}, &mut creatures)
-                .with(Plant{drop_seed_count: 200}, &mut plants)
+                .with(Creature{life: rng.gen_range(PLANT_MIN_LIFE, PLANT_MAX_LIFE), nutrition: PLANT_INITIAL_NUTRITION}, &mut creatures)
+                .with(Plant::default(), &mut plants)
                 .with(transform, &mut transforms)
                 .build();
         }

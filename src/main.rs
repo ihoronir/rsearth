@@ -21,10 +21,21 @@ fn main() -> amethyst::Result<()> {
     let display_config_path = app_root.join("config/display.ron");
     let asset_dir = app_root.join("assets/");
 
+    // Creature
+    // ↓
+    // Solar
+    // ↓
+    // Plant-Herbivore
+    // ↓
+    // Herbivore-Carnivore
+    // ↓
+    // Plant, Carnivore, Herbivore
+
     let game_data = GameDataBuilder::default()
         .with_bundle(TransformBundle::new())?
         .with(systems::CreatureSystem, "creature_system", &[])
-        .with(systems::PlantSystem, "plant_system", &["creature_system"])
+        .with(systems::SolarSystem, "solar_system", &["creature_system"])
+        .with(systems::PlantSystem, "plant_system", &["solar_system"])
         .with(systems::HerbivoreSystem, "herbivore_system", &["creature_system"])
         .with_bundle(
             RenderingBundle::<DefaultBackend>::new()
