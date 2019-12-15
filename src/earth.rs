@@ -126,7 +126,7 @@ fn initialise_creatures(world: &mut World, sprite_sheet_handle: Handle<SpriteShe
             sprite_number: 1
         };
 
-        for _ in 0..10 {
+        for _ in 0..50 {
 
             let mut transform = Transform::default();
             transform.set_translation_xyz(rng.gen_range(0.0, GROUND_WIDTH), rng.gen_range(0.0, GROUND_HEIGHT), 0.0);

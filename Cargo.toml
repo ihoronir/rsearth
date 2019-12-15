@@ -9,5 +9,5 @@ rand = "0.7"
 
 [dependencies.amethyst]
 version="0.13"
-features=["vulkan"]
+features=["vulkan", "no-slow-safety-checks"]
 

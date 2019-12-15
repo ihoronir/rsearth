@@ -29,10 +29,10 @@ impl<'s> System<'s> for HerbivoreSystem {
     fn run(&mut self, (mut entities, mut herbivores, mut transforms, time): Self::SystemData) {
 
         // x, y, vx, vy
-        let mut herbivores_cash: Vec<(f32, f32, f32, f32)> = vec![];
+        let mut herbivores_cache: Vec<(f32, f32, f32, f32)> = vec![];
 
         for (herbivore, transform) in (&mut herbivores, &mut transforms).join() {
-            herbivores_cash.push((transform.translation().x, transform.translation().y, herbivore.vx, herbivore.vy));
+            herbivores_cache.push((transform.translation().x, transform.translation().y, herbivore.vx, herbivore.vy));
         }
 
         for (herbivore, transform) in (&mut herbivores, &mut transforms).join() {
@@ -42,7 +42,7 @@ impl<'s> System<'s> for HerbivoreSystem {
             let separation = {
                 let mut fx = 0.0;
                 let mut fy = 0.0;
-                for (other_x, other_y, _, _) in &herbivores_cash {
+                for (other_x, other_y, _, _) in &herbivores_cache {
                     let distance_square = (self_x - other_x) * (self_x - other_x) + (self_y - other_y) * (self_y - other_y);
                     if distance_square < HERBIVORE_BOID_SEPARATION_DISTANCE * HERBIVORE_BOID_SEPARATION_DISTANCE && distance_square != 0.0 {
                         // distance ではなく distance_square で割っているのは、
@@ -60,7 +60,7 @@ impl<'s> System<'s> for HerbivoreSystem {
                 let mut x_sum = 0.0;
                 let mut y_sum = 0.0;
                 let mut other_num = 0;
-                for (other_x, other_y, _, _) in &herbivores_cash {
+                for (other_x, other_y, _, _) in &herbivores_cache {
                     let distance_square = (self_x - other_x) * (self_x - other_x) + (self_y - other_y) * (self_y - other_y);
                     // ここで自分を除外しないことで、ゼロ除算を回避。
                     // 全体の結果にも影響しない。
@@ -77,7 +77,7 @@ impl<'s> System<'s> for HerbivoreSystem {
                 let mut vx_sum = 0.0;
                 let mut vy_sum = 0.0;
                 let mut other_num = 0;
-                for (other_x, other_y, other_vx, other_vy) in &herbivores_cash {
+                for (other_x, other_y, other_vx, other_vy) in &herbivores_cache {
                     let distance_square = (self_x - other_x) * (self_x - other_x) + (self_y - other_y) * (self_y - other_y);
                     if distance_square < HERBIVORE_BOID_VISIBILITY_LENGTH * HERBIVORE_BOID_VISIBILITY_LENGTH && distance_square != 0.0 {
                         vx_sum += other_vx;
