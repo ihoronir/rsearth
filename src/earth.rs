@@ -88,7 +88,7 @@ pub const HERBIVORE_MIN_LIFE: u32 = 100;
 pub const HERBIVORE_MAX_LIFE: u32 = 400;
 pub const HERBIVORE_INITIAL_NUTRITION: u32 = 3600;
 pub const HERBIVORE_REACHABLE_RANGE: f32 = 4.0;
-pub const HERBIVORE_MAX_SPEED: f32 = 30.0;          // 最高速度
+pub const HERBIVORE_MAX_SPEED: f32 = 80.0;          // 最高速度
 pub const HERBIVORE_BOID_SEPARATION_DISTANCE: f32 = 50.0; // 最適な間隔
 pub const HERBIVORE_BOID_SEPARATION: f32 = 200.0;         // 間隔をとろうとする度合い
 pub const HERBIVORE_BOID_COHERENCE: f32 = 0.85;            // 群れの中心に向かう度合い
@@ -158,7 +158,7 @@ fn initialise_creatures(world: &mut World, sprite_sheet_handle: Handle<SpriteShe
             sprite_number: 1
         };
 
-        for _ in 0..200 {
+        for _ in 0..500 {
 
             let mut transform = Transform::default();
             transform.set_translation_xyz(rng.gen_range(0.0, GROUND_WIDTH), rng.gen_range(0.0, GROUND_HEIGHT), 0.0);

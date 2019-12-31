@@ -46,7 +46,7 @@ fn main() -> amethyst::Result<()> {
         .with(systems::HerbivoreMechanics, "herbivore_mechanics", &[])
         .with(systems::PositionUpdater, "position_updater", &["plant_mechanics", "herbivore_mechanics"])
         .with(systems::SolarSystem, "solar_system", &["position_updater"])
-        //.with(systems::PlantHerbivoreSystem, "plant_herbivore_system", &["solar_system"])
+        .with(systems::PlantHerbivore, "plant_herbivore", &["solar_system"])
         //.with(systems::PlantSystem, "plant_system", &["plant_herbivore_system"])
         //.with(systems::HerbivoreSystem, "herbivore_system", &["plant_system"])
         .with_bundle(
