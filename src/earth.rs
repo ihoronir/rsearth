@@ -9,8 +9,8 @@ use amethyst::{
     renderer::{Camera, ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat, Texture},
 };
 
-pub const GROUND_HEIGHT: f32 = 800.0;
-pub const GROUND_WIDTH: f32 = 800.0;
+pub const GROUND_HEIGHT: f32 = 1080.0;
+pub const GROUND_WIDTH: f32 = 1920.0;
 
 // Earth
 
@@ -46,7 +46,7 @@ impl Component for Creature {
 
 pub const PLANT_MIN_LIFE: u32 = 100;        // 寿命の下限値
 pub const PLANT_MAX_LIFE: u32 = 400;        // 寿命の上限値
-pub const PLANT_INITIAL_NUTRITION: u32 = 300;
+pub const PLANT_INITIAL_NUTRITION: u32 = 280;
 
 #[derive(Default)]
 pub struct Plant;
@@ -60,8 +60,8 @@ impl Component for Plant {
 // 自身の NUTRITION が INITIAL_NUTRITION * 2 になったら子供を産む。
 // 子供を産んだら INITIAL_NUTRITION 減る。
 
-pub const HERBIVORE_MIN_LIFE: u32 = 40;
-pub const HERBIVORE_MAX_LIFE: u32 = 140;
+pub const HERBIVORE_MIN_LIFE: u32 = 100;
+pub const HERBIVORE_MAX_LIFE: u32 = 400;
 pub const HERBIVORE_INITIAL_NUTRITION: u32 = 3600;
 pub const HERBIVORE_REACHABLE_RANGE: f32 = 4.0;
 pub const HERBIVORE_BOID_SEPARATION_DISTANCE: f32 = 50.0; // 最適な間隔
@@ -69,8 +69,8 @@ pub const HERBIVORE_BOID_SEPARATION: f32 = 200.0;         // 間隔をとろう�
 pub const HERBIVORE_BOID_COHERENCE: f32 = 0.85;            // 群れの中心に向かう度合い
 pub const HERBIVORE_BOID_ALIGNMENT: f32 = 0.02;           // 整列しようとする度合い
 pub const HERBIVORE_BOID_GRAVITY: f32 = 0.9;              // 餌に引き着く度合い
-pub const HERBIVORE_BOID_MAX_SPEED: f32 = 120.0;          // 最高速度
-pub const HERBIVORE_BOID_VISIBILITY_LENGTH: f32 = 60.0;   // 見えている長さ
+pub const HERBIVORE_BOID_MAX_SPEED: f32 = 180.0;          // 最高速度
+pub const HERBIVORE_BOID_VISIBILITY_LENGTH: f32 = 80.0;   // 見えている長さ
 
 #[derive(Default)]
 pub struct Herbivore {
@@ -128,7 +128,7 @@ fn initialise_creatures(world: &mut World, sprite_sheet_handle: Handle<SpriteShe
             sprite_number: 1
         };
 
-        for _ in 0..300 {
+        for _ in 0..200 {
 
             let mut transform = Transform::default();
             transform.set_translation_xyz(rng.gen_range(0.0, GROUND_WIDTH), rng.gen_range(0.0, GROUND_HEIGHT), 0.0);
@@ -137,12 +137,7 @@ fn initialise_creatures(world: &mut World, sprite_sheet_handle: Handle<SpriteShe
                 .create_entity()
                 .with(sprite_render.clone())
                 .with(Creature{life: rng.gen_range(HERBIVORE_MIN_LIFE, HERBIVORE_MAX_LIFE), nutrition: HERBIVORE_INITIAL_NUTRITION})
-                .with(
-                    Herbivore{
-                        vx: 0.0,
-                        vy: 0.0
-                    }
-                )
+                .with(Herbivore{vx: 0.0, vy: 0.0})
                 .with(transform)
                 .build();
         }

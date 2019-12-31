@@ -1,10 +1,10 @@
 use std::f32::consts::PI;
 use rand::Rng;
 use amethyst::{
-    core::timing::Time,
+    // core::timing::Time,
     core::{Transform, SystemDesc},
     derive::SystemDesc,
-    ecs::{Join, Read, ReadStorage, System, SystemData, World, Entities, WriteStorage},
+    ecs::{Join,/* Read,*/ ReadStorage, System, SystemData, World, Entities, WriteStorage},
     renderer::SpriteRender
 };
 use crate::earth::{
@@ -35,7 +35,7 @@ impl<'s> System<'s> for HerbivoreSystem {
         WriteStorage<'s, Herbivore>,
         WriteStorage<'s, Transform>,
         WriteStorage<'s, SpriteRender>,
-        Read<'s, Time>
+        // Read<'s, Time>
     );
 
     fn run(
@@ -47,7 +47,7 @@ impl<'s> System<'s> for HerbivoreSystem {
             mut herbivores,
             mut transforms,
             mut sprite_renders,
-            time
+            // time
         ): Self::SystemData
     ) {
         let mut rng = rand::thread_rng();
@@ -59,14 +59,7 @@ impl<'s> System<'s> for HerbivoreSystem {
             herbivores_cache.push((transform.translation().x, transform.translation().y, herbivore.vx, herbivore.vy));
         }
 
-        // x, y
-        let mut plants_cache: Vec<(f32, f32)> = vec![];
-
-        for (_, transform) in (&plants, &transforms).join() {
-            plants_cache.push((transform.translation().x, transform.translation().y));
-        }
-
-        for (herbivore, transform) in (&mut herbivores, &mut transforms).join() {
+        for (herbivore, transform) in (&mut herbivores, &transforms).join() {
             let self_x = transform.translation().x;
             let self_y = transform.translation().y;
 
@@ -135,7 +128,9 @@ impl<'s> System<'s> for HerbivoreSystem {
                 let mut x_sum = 0.0;
                 let mut y_sum = 0.0;
                 let mut plants_num = 0;
-                for (plant_x, plant_y) in &plants_cache {
+                for (_, plant_transform) in (&plants, &transforms).join() {
+                    let plant_x = plant_transform.translation().x;
+                    let plant_y = plant_transform.translation().y;
                     let distance_square = (self_x - plant_x) * (self_x - plant_x) + (self_y - plant_y) * (self_y - plant_y);
                     if distance_square < HERBIVORE_BOID_VISIBILITY_LENGTH * HERBIVORE_BOID_VISIBILITY_LENGTH {
                         x_sum += plant_x;
@@ -176,7 +171,6 @@ impl<'s> System<'s> for HerbivoreSystem {
         for (creature, herbivore, transform, sprite_render) in (&mut creatures, &mut herbivores, &mut transforms, &mut sprite_renders).join() {
             // transform.prepend_translation_x(herbivore.vx * time.delta_seconds());
             // transform.prepend_translation_y(herbivore.vy * time.delta_seconds());
-
             transform.prepend_translation_x(herbivore.vx * 1.0 / 60.0);
             transform.prepend_translation_y(herbivore.vy * 1.0 / 60.0);
 
@@ -206,4 +200,3 @@ impl<'s> System<'s> for HerbivoreSystem {
         }
     }
 }
-
