@@ -22,20 +22,37 @@ impl SimpleState for Earth {
         let world = data.world;
         let creature_sprite_sheet_handle = load_creature_sprite_sheet(world);
 
+        world.register::<Plant>();
+        world.register::<Herbivore>();
+        world.register::<Carnivore>();
+
         initialise_creatures(world, creature_sprite_sheet_handle);
         initialise_camera(world);
     }
 }
 
-// Creature
+// Velocity
 
 #[derive(Default)]
-pub struct Creature {
-   pub life: u32,
-   pub nutrition: u32
+pub struct Velocity {
+    pub x: f32,
+    pub y: f32
 }
 
-impl Component for Creature {
+impl Component for Velocity {
+    type Storage = VecStorage<Self>;
+}
+
+// Acceleration
+
+#[derive(Default)]
+pub struct Acceleration {
+    pub max_speed: f32,
+    pub x: f32,
+    pub y: f32
+}
+
+impl Component for Acceleration {
     type Storage = VecStorage<Self>;
 }
 
@@ -45,11 +62,18 @@ impl Component for Creature {
 // 種を撒いたら INITIAL_NUTRITION 減る。
 
 pub const PLANT_MIN_LIFE: u32 = 100;        // 寿命の下限値
-pub const PLANT_MAX_LIFE: u32 = 400;        // 寿命の上限値
-pub const PLANT_INITIAL_NUTRITION: u32 = 280;
+pub const PLANT_MAX_LIFE: u32 = 300;        // 寿命の上限値
+pub const PLANT_INITIAL_NUTRITION: u32 = 400;
+pub const PLANT_MAX_SPEED: f32 = 120.0;
+pub const PLANT_BOID_FRICTION: f32 = 0.1;
+pub const PLANT_BOID_SEPARATION_DISTANCE: f32 = 1.0;
+pub const PLANT_BOID_SEPARATION: f32 = 200.0;
 
 #[derive(Default)]
-pub struct Plant;
+pub struct Plant {
+   pub life: u32,
+   pub nutrition: u32
+}
 
 impl Component for Plant {
     type Storage = VecStorage<Self>;
@@ -64,18 +88,18 @@ pub const HERBIVORE_MIN_LIFE: u32 = 100;
 pub const HERBIVORE_MAX_LIFE: u32 = 400;
 pub const HERBIVORE_INITIAL_NUTRITION: u32 = 3600;
 pub const HERBIVORE_REACHABLE_RANGE: f32 = 4.0;
+pub const HERBIVORE_MAX_SPEED: f32 = 30.0;          // 最高速度
 pub const HERBIVORE_BOID_SEPARATION_DISTANCE: f32 = 50.0; // 最適な間隔
 pub const HERBIVORE_BOID_SEPARATION: f32 = 200.0;         // 間隔をとろうとする度合い
 pub const HERBIVORE_BOID_COHERENCE: f32 = 0.85;            // 群れの中心に向かう度合い
 pub const HERBIVORE_BOID_ALIGNMENT: f32 = 0.02;           // 整列しようとする度合い
 pub const HERBIVORE_BOID_GRAVITY: f32 = 0.9;              // 餌に引き着く度合い
-pub const HERBIVORE_BOID_MAX_SPEED: f32 = 180.0;          // 最高速度
 pub const HERBIVORE_BOID_VISIBILITY_LENGTH: f32 = 80.0;   // 見えている長さ
 
 #[derive(Default)]
 pub struct Herbivore {
-    pub vx: f32,
-    pub vy: f32
+    pub life: u32,
+    pub nutrition: u32,
 }
 
 impl Component for Herbivore {
@@ -105,7 +129,7 @@ fn initialise_creatures(world: &mut World, sprite_sheet_handle: Handle<SpriteShe
             sprite_number: 2
         };
 
-        for _ in 0..6000 {
+        for _ in 0..500 {
 
             let mut transform = Transform::default();
             transform.set_translation_xyz(rng.gen_range(0.0, GROUND_WIDTH), rng.gen_range(0.0, GROUND_HEIGHT), 0.0);
@@ -113,8 +137,14 @@ fn initialise_creatures(world: &mut World, sprite_sheet_handle: Handle<SpriteShe
             world
                 .create_entity()
                 .with(sprite_render.clone())
-                .with(Creature{life: rng.gen_range(PLANT_MIN_LIFE, PLANT_MAX_LIFE), nutrition: PLANT_INITIAL_NUTRITION})
-                .with(Plant::default())
+                .with(Velocity{x: 0.0, y: 0.0})
+                .with(Acceleration{max_speed: PLANT_MAX_SPEED, x: 0.0, y: 0.0})
+                .with(
+                    Plant{
+                        life: rng.gen_range(PLANT_MIN_LIFE, PLANT_MAX_LIFE),
+                        nutrition: PLANT_INITIAL_NUTRITION
+                    }
+                )
                 .with(transform)
                 .build();
         }
@@ -136,14 +166,22 @@ fn initialise_creatures(world: &mut World, sprite_sheet_handle: Handle<SpriteShe
             world
                 .create_entity()
                 .with(sprite_render.clone())
-                .with(Creature{life: rng.gen_range(HERBIVORE_MIN_LIFE, HERBIVORE_MAX_LIFE), nutrition: HERBIVORE_INITIAL_NUTRITION})
-                .with(Herbivore{vx: 0.0, vy: 0.0})
+                .with(Velocity{x: 0.0, y: 0.0})
+                .with(Acceleration{max_speed: HERBIVORE_MAX_SPEED, x: 0.0, y: 0.0})
+                .with(
+                    Herbivore{
+                        life: rng.gen_range(HERBIVORE_MIN_LIFE, HERBIVORE_MAX_LIFE),
+                        nutrition: HERBIVORE_INITIAL_NUTRITION,
+                    }
+                )
                 .with(transform)
                 .build();
         }
     }
 
 }
+
+// fn incubate_plant(sprite_render, life, nutrition, transform) 
 
 fn initialise_camera(world: &mut World) {
     let mut transform = Transform::default();

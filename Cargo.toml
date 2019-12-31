@@ -6,6 +6,7 @@ edition = "2018"
 
 [dependencies]
 rand = "0.7"
+rayon = "1.3"
 
 [dependencies.amethyst]
 version="0.13"

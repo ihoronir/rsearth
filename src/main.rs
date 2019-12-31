@@ -30,14 +30,25 @@ fn main() -> amethyst::Result<()> {
     // Herbivore-Carnivore
     // ↓
     // Plant, Carnivore, Herbivore
+    
+    // Plant, Herbivore, Carnivore, PlantIncubator, HerbivoreIncubator, CarnivoreIncubator -> mut acceleration
+    //
+    // PositionUpdater
+    //
+    // Solar
+    // Plant_Herbivore
+    // Herbivore_Carnivore
 
     let game_data = GameDataBuilder::default()
         .with_bundle(TransformBundle::new())?
-        .with(systems::CreatureSystem, "creature_system", &[])
-        .with(systems::SolarSystem, "solar_system", &["creature_system"])
-        .with(systems::PlantHerbivoreSystem, "plant_herbivore_system", &["solar_system"])
-        .with(systems::PlantSystem, "plant_system", &["plant_herbivore_system"])
-        .with(systems::HerbivoreSystem, "herbivore_system", &["plant_system"])
+        .with(systems::PlantIncubator, "plant_incubator", &[])
+        .with(systems::PlantMechanics, "plant_mechanics", &["plant_incubator"])
+        .with(systems::HerbivoreMechanics, "herbivore_mechanics", &[])
+        .with(systems::PositionUpdater, "position_updater", &["plant_mechanics", "herbivore_mechanics"])
+        .with(systems::SolarSystem, "solar_system", &["position_updater"])
+        //.with(systems::PlantHerbivoreSystem, "plant_herbivore_system", &["solar_system"])
+        //.with(systems::PlantSystem, "plant_system", &["plant_herbivore_system"])
+        //.with(systems::HerbivoreSystem, "herbivore_system", &["plant_system"])
         .with_bundle(
             RenderingBundle::<DefaultBackend>::new()
                 .with_plugin(
