@@ -1,7 +1,7 @@
 use amethyst::{
     core::{SystemDesc, Transform},
     derive::SystemDesc,
-    ecs::{Join, /*Read,*/ ReadStorage, System, SystemData, Entities,  World, WriteStorage},
+    ecs::{Join, ReadStorage, System, SystemData, Entities,  World, WriteStorage},
 };
 use crate::earth::{Plant, Herbivore, HERBIVORE_REACHABLE_RANGE};
 
@@ -27,9 +27,8 @@ impl<'s> System<'s> for PlantHerbivore {
             transforms
         ): Self::SystemData
     ) {
-        // 食べられる Plant の Id, 食べる Herbivore の Id, 引き継ぐ Nutrition
-        'herbivore_loop: for (_, herbivore, herbivore_transform) in (&*entities, &mut herbivores, &transforms).join() {
-            for (plant_entity, plant, plant_transform) in (&*entities, &mut plants, &transforms).join() {
+        'plant_loop: for (plant_entity, plant, plant_transform) in (&*entities, &mut plants, &transforms).join() {
+            for (_, herbivore, herbivore_transform) in (&*entities, &mut herbivores, &transforms).join() {
                 let plant_x = plant_transform.translation().x;
                 let plant_y = plant_transform.translation().y;
                 let herbivore_x = herbivore_transform.translation().x;
@@ -40,9 +39,9 @@ impl<'s> System<'s> for PlantHerbivore {
 
                 if x_diff * x_diff + y_diff * y_diff < HERBIVORE_REACHABLE_RANGE * HERBIVORE_REACHABLE_RANGE {
                     herbivore.nutrition += plant.nutrition;
-                    entities.delete(plant_entity).expect("Failed to delete plant.");
+                    entities.delete(plant_entity).expect("Failed to delete a plant.");
 
-                    continue 'herbivore_loop;
+                    continue 'plant_loop;
                 }
             }
         }

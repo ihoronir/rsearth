@@ -1,9 +1,7 @@
 use amethyst::{
-    // core::timing::Time,
     core::{Transform, SystemDesc},
     derive::SystemDesc,
-    ecs::{Join, ParJoin,/* Read,*/ ReadStorage, System, SystemData, World, WriteStorage},
-    //renderer::SpriteRender
+    ecs::{Join, ParJoin, ReadStorage, System, SystemData, World, WriteStorage},
 };
 use rayon::prelude::*;
 use crate::earth::{
@@ -11,12 +9,14 @@ use crate::earth::{
     Acceleration,
     Plant,
     Herbivore,
-    HERBIVORE_BOID_SEPARATION,
-    HERBIVORE_BOID_COHERENCE,
-    HERBIVORE_BOID_ALIGNMENT,
-    HERBIVORE_BOID_GRAVITY,
-    HERBIVORE_BOID_SEPARATION_DISTANCE,
-    HERBIVORE_BOID_VISIBILITY_LENGTH,
+    Carnivore,
+    HERBIVORE_SEPARATION,
+    HERBIVORE_COHERENCE,
+    HERBIVORE_ALIGNMENT,
+    HERBIVORE_PLANT_GRAVITY,
+    HERBIVORE_CARNIVORE_GRAVITY,
+    HERBIVORE_SEPARATION_DISTANCE,
+    HERBIVORE_VISIBLE_DISTANCE,
 };
 
 #[derive(SystemDesc)]
@@ -29,6 +29,7 @@ impl<'s> System<'s> for HerbivoreMechanics {
         ReadStorage<'s, Velocity>,
         WriteStorage<'s, Acceleration>,
         ReadStorage<'s, Plant>,
+        ReadStorage<'s, Carnivore>,
         ReadStorage<'s, Herbivore>,
     );
 
@@ -39,12 +40,13 @@ impl<'s> System<'s> for HerbivoreMechanics {
             velocities,
             mut accelerations,
             plants,
+            carnivores,
             herbivores,
         ): Self::SystemData
     ) {
         
-        (&herbivores, &transforms, &mut accelerations,/* &velocities*/).par_join()
-            .for_each(|(_, self_transform, mut acceleration,/* velocity*/)| {
+        (&herbivores, &transforms, &mut accelerations).par_join()
+            .for_each(|(_, self_transform, mut acceleration)| {
                 let self_x = self_transform.translation().x;
                 let self_y = self_transform.translation().y;
 
@@ -71,7 +73,7 @@ impl<'s> System<'s> for HerbivoreMechanics {
 
                     let distance_square = (self_x - other_x) * (self_x - other_x) + (self_y - other_y) * (self_y - other_y);
 
-                    if distance_square < HERBIVORE_BOID_VISIBILITY_LENGTH * HERBIVORE_BOID_VISIBILITY_LENGTH && distance_square != 0.0 {
+                    if distance_square < HERBIVORE_VISIBLE_DISTANCE * HERBIVORE_VISIBLE_DISTANCE && distance_square != 0.0 {
                         visible_num += 1;
 
                         visible_x_sum += other_x;
@@ -80,7 +82,7 @@ impl<'s> System<'s> for HerbivoreMechanics {
                         visible_vx_sum += other_vx;
                         visible_vy_sum += other_vy;
 
-                        if distance_square < HERBIVORE_BOID_SEPARATION_DISTANCE * HERBIVORE_BOID_SEPARATION_DISTANCE {
+                        if distance_square < HERBIVORE_SEPARATION_DISTANCE * HERBIVORE_SEPARATION_DISTANCE {
                             fx -= (other_x - self_x) / distance_square;
                             fy -= (other_y - self_y) / distance_square;
                         }
@@ -113,7 +115,7 @@ impl<'s> System<'s> for HerbivoreMechanics {
                         let plant_x = plant_transform.translation().x;
                         let plant_y = plant_transform.translation().y;
                         let distance_square = (self_x - plant_x) * (self_x - plant_x) + (self_y - plant_y) * (self_y - plant_y);
-                        if distance_square < HERBIVORE_BOID_VISIBILITY_LENGTH * HERBIVORE_BOID_VISIBILITY_LENGTH {
+                        if distance_square < HERBIVORE_VISIBLE_DISTANCE * HERBIVORE_VISIBLE_DISTANCE {
                             x_sum += plant_x;
                             y_sum += plant_y;
                             plants_num += 1;
@@ -126,52 +128,36 @@ impl<'s> System<'s> for HerbivoreMechanics {
                     }
                 };
 
-                let ax = separation.0    * HERBIVORE_BOID_SEPARATION
-                       + coherence.0     * HERBIVORE_BOID_COHERENCE
-                       + alignment.0     * HERBIVORE_BOID_ALIGNMENT
-                       + plant_gravity.0 * HERBIVORE_BOID_GRAVITY;
+                let carnivore_gravity = {
+                    let mut fx = 0.0;
+                    let mut fy = 0.0;
+                    for (_, carnivore_transform) in (&carnivores, &transforms).join() {
+                        let carnivore_x = carnivore_transform.translation().x;
+                        let carnivore_y = carnivore_transform.translation().y;
+                        let distance_square = (self_x - carnivore_x) * (self_x - carnivore_x) + (self_y - carnivore_y) * (self_y - carnivore_y);
+                        if distance_square < HERBIVORE_VISIBLE_DISTANCE * HERBIVORE_VISIBLE_DISTANCE && distance_square != 0.0 {
+                            fx -= (carnivore_x - self_x) / distance_square;
+                            fy -= (carnivore_y - self_y) / distance_square;
+                        }
+                    }
+                    (fx, fy)
+                };
 
-                let ay = separation.1    * HERBIVORE_BOID_SEPARATION
-                       + coherence.1     * HERBIVORE_BOID_COHERENCE
-                       + alignment.1     * HERBIVORE_BOID_ALIGNMENT
-                       + plant_gravity.1 * HERBIVORE_BOID_GRAVITY;
+                let ax = separation.0        * HERBIVORE_SEPARATION
+                       + coherence.0         * HERBIVORE_COHERENCE
+                       + alignment.0         * HERBIVORE_ALIGNMENT
+                       + plant_gravity.0     * HERBIVORE_PLANT_GRAVITY
+                       + carnivore_gravity.0 * HERBIVORE_CARNIVORE_GRAVITY;
+
+                let ay = separation.1        * HERBIVORE_SEPARATION
+                       + coherence.1         * HERBIVORE_COHERENCE
+                       + alignment.1         * HERBIVORE_ALIGNMENT
+                       + plant_gravity.1     * HERBIVORE_PLANT_GRAVITY
+                       + carnivore_gravity.1 * HERBIVORE_CARNIVORE_GRAVITY;
 
                 acceleration.x = ax;
                 acceleration.y = ay;
 
             });
         }
-
-        // let mut new_herbivores: Vec<(Transform, SpriteRender)> = vec![];
-
-        //for (creature, herbivore, transform, sprite_render) in (&mut creatures, &mut herbivores, &mut transforms, &mut sprite_renders).join() {
-        //    // transform.prepend_translation_x(herbivore.vx * time.delta_seconds());
-        //    // transform.prepend_translation_y(herbivore.vy * time.delta_seconds());
-        //    transform.prepend_translation_x(herbivore.vx * 1.0 / 60.0);
-        //    transform.prepend_translation_y(herbivore.vy * 1.0 / 60.0);
-
-        //    if creature.nutrition > HERBIVORE_INITIAL_NUTRITION * 2 {
-        //        let difference = {
-        //            let r = PI * 2.0 * rng.gen::<f32>();
-        //            let s = HERBIVORE_BOID_SEPARATION_DISTANCE / 2.0 * (rng.gen::<f32>().sqrt());
-        //            (s * r.cos(), s * r.sin())
-        //        };
-        //        let mut new_transform = Transform::default();
-        //        new_transform.set_translation_xyz(transform.translation().x + difference.0 , transform.translation().y + difference.1, 0.0);
-        //        let new_sprite_render = sprite_render.clone();
-        //        new_herbivores.push((new_transform, new_sprite_render));
-
-        //        creature.nutrition -= HERBIVORE_INITIAL_NUTRITION;
-        //    } 
-        //}
-
-        //for (transform, sprite_render) in new_herbivores {
-        //    entities
-        //        .build_entity()
-        //        .with(sprite_render, &mut sprite_renders)
-        //        .with(Creature{life: rng.gen_range(HERBIVORE_MIN_LIFE, HERBIVORE_MAX_LIFE), nutrition: HERBIVORE_INITIAL_NUTRITION}, &mut creatures)
-        //        .with(Herbivore::default(), &mut herbivores)
-        //        .with(transform, &mut transforms)
-        //        .build();
-        //}
 }

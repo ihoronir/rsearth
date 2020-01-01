@@ -1,12 +1,9 @@
-//use std::f32::consts::PI;
-//use rand::Rng;
 use amethyst::{
     core::{Transform, SystemDesc},
     derive::SystemDesc,
-    ecs::{Join, ParJoin, /* Read,*/ ReadStorage, System, SystemData, World/*, Entities*/, WriteStorage},
-    //renderer::SpriteRender
+    ecs::{Join, ParJoin, ReadStorage, System, SystemData, World, WriteStorage},
 };
-use crate::earth::{Velocity, Acceleration, Plant, PLANT_BOID_SEPARATION_DISTANCE, PLANT_BOID_SEPARATION, PLANT_BOID_FRICTION};
+use crate::earth::{Velocity, Acceleration, Plant, PLANT_SEPARATION_DISTANCE, PLANT_SEPARATION, PLANT_FRICTION};
 use rayon::prelude::*;
 
 #[derive(SystemDesc)]
@@ -43,7 +40,7 @@ impl<'s> System<'s> for PlantMechanics {
                         let other_x = other_transform.translation().x;
                         let other_y = other_transform.translation().y;
                         let distance_square = (self_x - other_x) * (self_x - other_x) + (self_y - other_y) * (self_y - other_y);
-                        if distance_square < PLANT_BOID_SEPARATION_DISTANCE * PLANT_BOID_SEPARATION_DISTANCE && distance_square != 0.0 {
+                        if distance_square < PLANT_SEPARATION_DISTANCE * PLANT_SEPARATION_DISTANCE && distance_square != 0.0 {
                             fx -= (other_x - self_x) / distance_square;
                             fy -= (other_y - self_y) / distance_square;
                         }
@@ -51,13 +48,13 @@ impl<'s> System<'s> for PlantMechanics {
                     (fx, fy)
                 };
 
-                let mut new_ax = coherence.0 * PLANT_BOID_SEPARATION;
-                let mut new_ay = coherence.1 * PLANT_BOID_SEPARATION;
+                let mut new_ax = coherence.0 * PLANT_SEPARATION;
+                let mut new_ay = coherence.1 * PLANT_SEPARATION;
 
                 let speed_square = velocity.x * velocity.x + velocity.y * velocity.y;
                 if speed_square != 0.0 {
-                    new_ax -= velocity.x * PLANT_BOID_FRICTION;
-                    new_ay -= velocity.y * PLANT_BOID_FRICTION;
+                    new_ax -= velocity.x * PLANT_FRICTION;
+                    new_ay -= velocity.y * PLANT_FRICTION;
                 }
 
                 acceleration.x = new_ax;

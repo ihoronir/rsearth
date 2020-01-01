@@ -43,12 +43,14 @@ fn main() -> amethyst::Result<()> {
         .with_bundle(TransformBundle::new())?
         .with(systems::PlantIncubator, "plant_incubator", &[])
         .with(systems::PlantMechanics, "plant_mechanics", &["plant_incubator"])
-        .with(systems::HerbivoreMechanics, "herbivore_mechanics", &[])
-        .with(systems::PositionUpdater, "position_updater", &["plant_mechanics", "herbivore_mechanics"])
+        .with(systems::HerbivoreIncubator, "herbivore_incubator", &[])
+        .with(systems::HerbivoreMechanics, "herbivore_mechanics", &["herbivore_incubator"])
+        .with(systems::CarnivoreIncubator, "carnivore_incubator", &[])
+        .with(systems::CarnivoreMechanics, "carnivore_mechanics", &["carnivore_incubator"])
+        .with(systems::PositionUpdater, "position_updater", &["plant_mechanics", "herbivore_mechanics", "carnivore_mechanics"])
         .with(systems::SolarSystem, "solar_system", &["position_updater"])
         .with(systems::PlantHerbivore, "plant_herbivore", &["solar_system"])
-        //.with(systems::PlantSystem, "plant_system", &["plant_herbivore_system"])
-        //.with(systems::HerbivoreSystem, "herbivore_system", &["plant_system"])
+        .with(systems::HerbivoreCarnivore, "carnivore_herbivore", &["plant_herbivore"])
         .with_bundle(
             RenderingBundle::<DefaultBackend>::new()
                 .with_plugin(

@@ -6,20 +6,20 @@ use amethyst::{
     ecs::{Join, System, SystemData, Entities,  World, WriteStorage},
     renderer::SpriteRender
 };
-use crate::earth::{Velocity, Acceleration, Plant, PLANT_MAX_SPEED, PLANT_MIN_LIFE, PLANT_MAX_LIFE, PLANT_INITIAL_NUTRITION, PLANT_SEPARATION_DISTANCE};
+use crate::earth::{Velocity, Acceleration, Herbivore, HERBIVORE_MAX_SPEED, HERBIVORE_MIN_LIFE, HERBIVORE_MAX_LIFE, HERBIVORE_INITIAL_NUTRITION, HERBIVORE_SEPARATION_DISTANCE};
 
 
 #[derive(SystemDesc)]
-pub struct PlantIncubator;
+pub struct HerbivoreIncubator;
 
-impl<'s> System<'s> for PlantIncubator {
+impl<'s> System<'s> for HerbivoreIncubator {
 
     type SystemData = (
         Entities<'s>,
         WriteStorage<'s, Transform>,
         WriteStorage<'s, Velocity>,
         WriteStorage<'s, Acceleration>,
-        WriteStorage<'s, Plant>,
+        WriteStorage<'s, Herbivore>,
         WriteStorage<'s, SpriteRender>
     );
 
@@ -30,25 +30,25 @@ impl<'s> System<'s> for PlantIncubator {
             mut transforms,
             mut velocities,
             mut accelerations,
-            mut plants,
+            mut herbivores,
             mut sprite_renders
         ): Self::SystemData
     ) {
         let mut rng = rand::thread_rng();
         let mut new_plants: Vec<(Transform, SpriteRender)> = vec![];
 
-        for (entity, plant, transform, sprite_render) in (&*entities, &mut plants, &transforms, &sprite_renders).join() {
+        for (entity, herbivore, transform, sprite_render) in (&*entities, &mut herbivores, &transforms, &sprite_renders).join() {
 
-            if plant.life <= 0 {
-                entities.delete(entity).expect("Failed to delete a plant.");
+            if herbivore.life <= 0 {
+                entities.delete(entity).expect("Failed to delete a herbivore.");
 
             } else{
-                plant.life -= 1;
+                herbivore.life -= 1;
 
-                if plant.nutrition >= PLANT_INITIAL_NUTRITION * 2 {
+                if herbivore.nutrition >= HERBIVORE_INITIAL_NUTRITION * 2 {
                     let difference = {
                         let r = PI * 2.0 * rng.gen::<f32>();
-                        let s = PLANT_SEPARATION_DISTANCE * (rng.gen::<f32>().sqrt());
+                        let s = HERBIVORE_SEPARATION_DISTANCE * (rng.gen::<f32>().sqrt());
                         (s * r.cos(), s * r.sin())
                     };
                     let mut new_transform = Transform::default();
@@ -56,7 +56,7 @@ impl<'s> System<'s> for PlantIncubator {
                     let new_sprite_render = sprite_render.clone();
                     new_plants.push((new_transform, new_sprite_render));
 
-                    plant.nutrition -= PLANT_INITIAL_NUTRITION;
+                    herbivore.nutrition -= HERBIVORE_INITIAL_NUTRITION;
                 }
             }
         }
@@ -66,13 +66,13 @@ impl<'s> System<'s> for PlantIncubator {
                 .build_entity()
                 .with(sprite_render, &mut sprite_renders)
                 .with(Velocity{x: 0.0, y: 0.0}, &mut velocities)
-                .with(Acceleration{max_speed: PLANT_MAX_SPEED, x: 0.0, y: 0.0}, &mut accelerations)
+                .with(Acceleration{max_speed: HERBIVORE_MAX_SPEED, x: 0.0, y: 0.0}, &mut accelerations)
                 .with(
-                    Plant{
-                        life: rng.gen_range(PLANT_MIN_LIFE, PLANT_MAX_LIFE),
-                        nutrition: PLANT_INITIAL_NUTRITION
+                    Herbivore{
+                        life: rng.gen_range(HERBIVORE_MIN_LIFE, HERBIVORE_MAX_LIFE),
+                        nutrition: HERBIVORE_INITIAL_NUTRITION
                     },
-                    &mut plants
+                    &mut herbivores
                 )
                 .with(transform, &mut transforms)
                 .build();
