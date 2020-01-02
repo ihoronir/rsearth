@@ -21,24 +21,6 @@ fn main() -> amethyst::Result<()> {
     let display_config_path = app_root.join("config/display.ron");
     let asset_dir = app_root.join("assets/");
 
-    // Creature
-    // ↓
-    // Solar
-    // ↓
-    // Plant-Herbivore
-    // ↓
-    // Herbivore-Carnivore
-    // ↓
-    // Plant, Carnivore, Herbivore
-    
-    // Plant, Herbivore, Carnivore, PlantIncubator, HerbivoreIncubator, CarnivoreIncubator -> mut acceleration
-    //
-    // PositionUpdater
-    //
-    // Solar
-    // Plant_Herbivore
-    // Herbivore_Carnivore
-
     let game_data = GameDataBuilder::default()
         .with_bundle(TransformBundle::new())?
         .with(systems::PlantIncubator, "plant_incubator", &[])
