@@ -1,24 +1,24 @@
+use crate::earth::{Acceleration, Velocity, GROUND_HEIGHT, GROUND_WIDTH};
 use amethyst::{
     core::{SystemDesc, Transform},
     derive::SystemDesc,
-    ecs::{Join,/* Read,*/ ReadStorage, System, SystemData, World, WriteStorage}
+    ecs::{Join, /* Read,*/ ReadStorage, System, SystemData, World, WriteStorage},
 };
-use crate::earth::{Velocity, Acceleration, GROUND_WIDTH, GROUND_HEIGHT};
 
 #[derive(SystemDesc)]
 pub struct PositionUpdater;
 
 impl<'s> System<'s> for PositionUpdater {
-
     type SystemData = (
         WriteStorage<'s, Transform>,
         WriteStorage<'s, Velocity>,
-        ReadStorage<'s, Acceleration>
+        ReadStorage<'s, Acceleration>,
     );
 
     fn run(&mut self, (mut transforms, mut velocities, accelerations): Self::SystemData) {
-        for (transform, velocity, acceleration) in (&mut transforms, &mut velocities, &accelerations).join() {
-
+        for (transform, velocity, acceleration) in
+            (&mut transforms, &mut velocities, &accelerations).join()
+        {
             let mut new_vx = velocity.x + acceleration.x;
             let mut new_vy = velocity.y + acceleration.y;
 
@@ -52,4 +52,3 @@ impl<'s> System<'s> for PositionUpdater {
         }
     }
 }
-

@@ -1,26 +1,27 @@
-use std::f32::consts::PI;
-use rand::Rng;
+use crate::earth::{
+    Acceleration, Plant, Velocity, PLANT_INITIAL_NUTRITION, PLANT_MAX_LIFE, PLANT_MAX_SPEED,
+    PLANT_MIN_LIFE, PLANT_SEPARATION_DISTANCE,
+};
 use amethyst::{
     core::{SystemDesc, Transform},
     derive::SystemDesc,
-    ecs::{Join, System, SystemData, Entities,  World, WriteStorage},
-    renderer::SpriteRender
+    ecs::{Entities, Join, System, SystemData, World, WriteStorage},
+    renderer::SpriteRender,
 };
-use crate::earth::{Velocity, Acceleration, Plant, PLANT_MAX_SPEED, PLANT_MIN_LIFE, PLANT_MAX_LIFE, PLANT_INITIAL_NUTRITION, PLANT_SEPARATION_DISTANCE};
-
+use rand::Rng;
+use std::f32::consts::PI;
 
 #[derive(SystemDesc)]
 pub struct PlantIncubator;
 
 impl<'s> System<'s> for PlantIncubator {
-
     type SystemData = (
         Entities<'s>,
         WriteStorage<'s, Transform>,
         WriteStorage<'s, Velocity>,
         WriteStorage<'s, Acceleration>,
         WriteStorage<'s, Plant>,
-        WriteStorage<'s, SpriteRender>
+        WriteStorage<'s, SpriteRender>,
     );
 
     fn run(
@@ -31,18 +32,18 @@ impl<'s> System<'s> for PlantIncubator {
             mut velocities,
             mut accelerations,
             mut plants,
-            mut sprite_renders
-        ): Self::SystemData
+            mut sprite_renders,
+        ): Self::SystemData,
     ) {
         let mut rng = rand::thread_rng();
         let mut new_plants: Vec<(Transform, SpriteRender)> = vec![];
 
-        for (entity, plant, transform, sprite_render) in (&*entities, &mut plants, &transforms, &sprite_renders).join() {
-
-            if plant.life <= 0 {
+        for (entity, plant, transform, sprite_render) in
+            (&*entities, &mut plants, &transforms, &sprite_renders).join()
+        {
+            if plant.life == 0 {
                 entities.delete(entity).expect("Failed to delete a plant.");
-
-            } else{
+            } else {
                 plant.life -= 1;
 
                 if plant.nutrition >= PLANT_INITIAL_NUTRITION * 2 {
@@ -52,7 +53,11 @@ impl<'s> System<'s> for PlantIncubator {
                         (s * r.cos(), s * r.sin())
                     };
                     let mut new_transform = Transform::default();
-                    new_transform.set_translation_xyz(transform.translation().x + difference.0 , transform.translation().y + difference.1, 0.0);
+                    new_transform.set_translation_xyz(
+                        transform.translation().x + difference.0,
+                        transform.translation().y + difference.1,
+                        0.0,
+                    );
                     let new_sprite_render = sprite_render.clone();
                     new_plants.push((new_transform, new_sprite_render));
 
@@ -65,14 +70,21 @@ impl<'s> System<'s> for PlantIncubator {
             entities
                 .build_entity()
                 .with(sprite_render, &mut sprite_renders)
-                .with(Velocity{x: 0.0, y: 0.0}, &mut velocities)
-                .with(Acceleration{max_speed: PLANT_MAX_SPEED, x: 0.0, y: 0.0}, &mut accelerations)
+                .with(Velocity { x: 0.0, y: 0.0 }, &mut velocities)
                 .with(
-                    Plant{
-                        life: rng.gen_range(PLANT_MIN_LIFE, PLANT_MAX_LIFE),
-                        nutrition: PLANT_INITIAL_NUTRITION
+                    Acceleration {
+                        max_speed: PLANT_MAX_SPEED,
+                        x: 0.0,
+                        y: 0.0,
                     },
-                    &mut plants
+                    &mut accelerations,
+                )
+                .with(
+                    Plant {
+                        life: rng.gen_range(PLANT_MIN_LIFE, PLANT_MAX_LIFE),
+                        nutrition: PLANT_INITIAL_NUTRITION,
+                    },
+                    &mut plants,
                 )
                 .with(transform, &mut transforms)
                 .build();

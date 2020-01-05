@@ -1,16 +1,17 @@
+use crate::earth::{
+    Acceleration, Plant, Velocity, PLANT_FRICTION, PLANT_SEPARATION, PLANT_SEPARATION_DISTANCE,
+};
 use amethyst::{
-    core::{Transform, SystemDesc},
+    core::{SystemDesc, Transform},
     derive::SystemDesc,
     ecs::{Join, ParJoin, ReadStorage, System, SystemData, World, WriteStorage},
 };
-use crate::earth::{Velocity, Acceleration, Plant, PLANT_SEPARATION_DISTANCE, PLANT_SEPARATION, PLANT_FRICTION};
 use rayon::prelude::*;
 
 #[derive(SystemDesc)]
 pub struct PlantMechanics;
 
 impl<'s> System<'s> for PlantMechanics {
-
     type SystemData = (
         ReadStorage<'s, Transform>,
         ReadStorage<'s, Velocity>,
@@ -18,16 +19,9 @@ impl<'s> System<'s> for PlantMechanics {
         ReadStorage<'s, Plant>,
     );
 
-    fn run(
-        &mut self,
-        (
-            transforms,
-            velocities,
-            mut accelerations,
-            plants,
-        ): Self::SystemData
-    ) {
-        (&plants, &transforms, &mut accelerations, &velocities).par_join()
+    fn run(&mut self, (transforms, velocities, mut accelerations, plants): Self::SystemData) {
+        (&plants, &transforms, &mut accelerations, &velocities)
+            .par_join()
             .for_each(|(_, self_transform, acceleration, velocity)| {
                 let self_x = self_transform.translation().x;
                 let self_y = self_transform.translation().y;
@@ -39,8 +33,11 @@ impl<'s> System<'s> for PlantMechanics {
                     for (_, other_transform) in (&plants, &transforms).join() {
                         let other_x = other_transform.translation().x;
                         let other_y = other_transform.translation().y;
-                        let distance_square = (self_x - other_x) * (self_x - other_x) + (self_y - other_y) * (self_y - other_y);
-                        if distance_square < PLANT_SEPARATION_DISTANCE * PLANT_SEPARATION_DISTANCE && distance_square != 0.0 {
+                        let distance_square = (self_x - other_x) * (self_x - other_x)
+                            + (self_y - other_y) * (self_y - other_y);
+                        if distance_square < PLANT_SEPARATION_DISTANCE * PLANT_SEPARATION_DISTANCE
+                            && distance_square != 0.0
+                        {
                             fx -= (other_x - self_x) / distance_square;
                             fy -= (other_y - self_y) / distance_square;
                         }

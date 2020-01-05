@@ -1,22 +1,17 @@
+use crate::earth::{
+    Acceleration, Carnivore, Herbivore, CARNIVORE_HERBIVORE_GRAVITY, CARNIVORE_VISIBLE_DISTANCE,
+};
 use amethyst::{
-    core::{Transform, SystemDesc},
+    core::{SystemDesc, Transform},
     derive::SystemDesc,
     ecs::{Join, ParJoin, ReadStorage, System, SystemData, World, WriteStorage},
 };
 use rayon::prelude::*;
-use crate::earth::{
-    Acceleration,
-    Herbivore,
-    Carnivore,
-    CARNIVORE_HERBIVORE_GRAVITY,
-    CARNIVORE_VISIBLE_DISTANCE,
-};
 
 #[derive(SystemDesc)]
 pub struct CarnivoreMechanics;
 
 impl<'s> System<'s> for CarnivoreMechanics {
-
     type SystemData = (
         ReadStorage<'s, Transform>,
         WriteStorage<'s, Acceleration>,
@@ -24,17 +19,9 @@ impl<'s> System<'s> for CarnivoreMechanics {
         ReadStorage<'s, Carnivore>,
     );
 
-    fn run(
-        &mut self,
-        (
-            transforms,
-            mut accelerations,
-            herbivores,
-            carnivores
-        ): Self::SystemData
-    ) {
-        
-        (&carnivores, &transforms, &mut accelerations).par_join()
+    fn run(&mut self, (transforms, mut accelerations, herbivores, carnivores): Self::SystemData) {
+        (&carnivores, &transforms, &mut accelerations)
+            .par_join()
             .for_each(|(_, self_transform, mut acceleration)| {
                 let self_x = self_transform.translation().x;
                 let self_y = self_transform.translation().y;
@@ -46,8 +33,10 @@ impl<'s> System<'s> for CarnivoreMechanics {
                         let herbivore_x = herbivore_transform.translation().x;
                         let herbivore_y = herbivore_transform.translation().y;
 
-                        let distance_square = (self_x - herbivore_x) * (self_x - herbivore_x) + (self_y - herbivore_y) * (self_y - herbivore_y);
-                        if distance_square < CARNIVORE_VISIBLE_DISTANCE * CARNIVORE_VISIBLE_DISTANCE {
+                        let distance_square = (self_x - herbivore_x) * (self_x - herbivore_x)
+                            + (self_y - herbivore_y) * (self_y - herbivore_y);
+                        if distance_square < CARNIVORE_VISIBLE_DISTANCE * CARNIVORE_VISIBLE_DISTANCE
+                        {
                             if let Some(position) = position_op {
                                 if distance_square < position.2 {
                                     position_op = Some((herbivore_x, herbivore_y, distance_square));
@@ -74,7 +63,6 @@ impl<'s> System<'s> for CarnivoreMechanics {
 
                 acceleration.x = ax;
                 acceleration.y = ay;
-
             });
-        }
+    }
 }
