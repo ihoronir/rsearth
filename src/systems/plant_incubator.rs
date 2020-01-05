@@ -58,8 +58,8 @@ impl<'s> System<'s> for PlantIncubator {
                         transform.translation().y + difference.1,
                         0.0,
                     );
-                    let new_sprite_render = sprite_render.clone();
-                    new_plants.push((new_transform, new_sprite_render));
+                    let new_sprite_render = sprite_render;
+                    new_plants.push((new_transform, new_sprite_render.clone()));
 
                     plant.nutrition -= PLANT_INITIAL_NUTRITION;
                 }

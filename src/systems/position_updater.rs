@@ -2,7 +2,7 @@ use crate::earth::{Acceleration, Velocity, GROUND_HEIGHT, GROUND_WIDTH};
 use amethyst::{
     core::{SystemDesc, Transform},
     derive::SystemDesc,
-    ecs::{Join, /* Read,*/ ReadStorage, System, SystemData, World, WriteStorage},
+    ecs::{Join, ReadStorage, System, SystemData, World, WriteStorage},
 };
 
 #[derive(SystemDesc)]

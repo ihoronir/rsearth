@@ -2,7 +2,7 @@ use crate::earth::{Carnivore, Herbivore, CARNIVORE_REACHABLE_RANGE};
 use amethyst::{
     core::{SystemDesc, Transform},
     derive::SystemDesc,
-    ecs::{Entities, Join, /*Read,*/ ReadStorage, System, SystemData, World, WriteStorage},
+    ecs::{Entities, Join, ReadStorage, System, SystemData, World, WriteStorage},
 };
 
 #[derive(SystemDesc)]
