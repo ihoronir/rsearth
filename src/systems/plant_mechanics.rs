@@ -26,7 +26,7 @@ impl<'s> System<'s> for PlantMechanics {
                 let self_x = self_transform.translation().x;
                 let self_y = self_transform.translation().y;
 
-                let coherence = {
+                let separation = {
                     let mut fx = 0.0;
                     let mut fy = 0.0;
 
@@ -45,11 +45,10 @@ impl<'s> System<'s> for PlantMechanics {
                     (fx, fy)
                 };
 
-                let mut new_ax = coherence.0 * PLANT_SEPARATION;
-                let mut new_ay = coherence.1 * PLANT_SEPARATION;
+                let mut new_ax = separation.0 * PLANT_SEPARATION;
+                let mut new_ay = separation.1 * PLANT_SEPARATION;
 
-                let speed_square = velocity.x * velocity.x + velocity.y * velocity.y;
-                if speed_square != 0.0 {
+                if velocity.x != 0.0 || velocity.y != 0.0 {
                     new_ax -= velocity.x * PLANT_FRICTION;
                     new_ay -= velocity.y * PLANT_FRICTION;
                 }

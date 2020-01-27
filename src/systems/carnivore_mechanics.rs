@@ -49,7 +49,7 @@ impl<'s> System<'s> for CarnivoreMechanics {
                     position_op
                 };
 
-                let plant_gravity = if let Some(position) = target {
+                let herbivore_gravity = if let Some(position) = target {
                     let x_diff = position.0 - self_x;
                     let y_diff = position.1 - self_y;
                     let diff_norm = x_diff * x_diff + y_diff * y_diff;
@@ -58,8 +58,8 @@ impl<'s> System<'s> for CarnivoreMechanics {
                     (0.0, 0.0)
                 };
 
-                let ax = plant_gravity.0 * CARNIVORE_HERBIVORE_GRAVITY;
-                let ay = plant_gravity.1 * CARNIVORE_HERBIVORE_GRAVITY;
+                let ax = herbivore_gravity.0 * CARNIVORE_HERBIVORE_GRAVITY;
+                let ay = herbivore_gravity.1 * CARNIVORE_HERBIVORE_GRAVITY;
 
                 acceleration.x = ax;
                 acceleration.y = ay;

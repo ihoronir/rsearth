@@ -1,6 +1,6 @@
 use crate::earth::{
     Acceleration, Carnivore, Velocity, CARNIVORE_INITIAL_NUTRITION, CARNIVORE_MAX_LIFE,
-    CARNIVORE_MAX_SPEED, CARNIVORE_MIN_LIFE,
+    CARNIVORE_MAX_SPEED, CARNIVORE_MIN_LIFE, CARNIVORE_SEPARATION_DISTANCE
 };
 use amethyst::{
     core::{SystemDesc, Transform},
@@ -51,7 +51,7 @@ impl<'s> System<'s> for CarnivoreIncubator {
                 if carnivore.nutrition >= CARNIVORE_INITIAL_NUTRITION * 2 {
                     let difference = {
                         let r = PI * 2.0 * rng.gen::<f32>();
-                        let s = 10.0 * (rng.gen::<f32>().sqrt()); // SEPARATION_DISTANCE どうする？
+                        let s = CARNIVORE_SEPARATION_DISTANCE * (rng.gen::<f32>().sqrt());
                         (s * r.cos(), s * r.sin())
                     };
                     let mut new_transform = Transform::default();
