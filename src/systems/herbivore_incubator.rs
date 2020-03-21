@@ -38,9 +38,12 @@ impl<'s> System<'s> for HerbivoreIncubator {
         let mut rng = rand::thread_rng();
         let mut new_plants: Vec<(Transform, SpriteRender)> = vec![];
 
+        let mut herbivore_num = 0;
+
         for (entity, herbivore, transform, sprite_render) in
             (&*entities, &mut herbivores, &transforms, &sprite_renders).join()
         {
+            herbivore_num += 1;
             if herbivore.life == 0 {
                 entities
                     .delete(entity)
@@ -67,6 +70,7 @@ impl<'s> System<'s> for HerbivoreIncubator {
                 }
             }
         }
+        print!("{} ", herbivore_num);
 
         for (transform, sprite_render) in new_plants {
             entities

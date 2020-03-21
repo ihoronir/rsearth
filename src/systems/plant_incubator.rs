@@ -38,9 +38,12 @@ impl<'s> System<'s> for PlantIncubator {
         let mut rng = rand::thread_rng();
         let mut new_plants: Vec<(Transform, SpriteRender)> = vec![];
 
+        let mut plant_num = 0;
+
         for (entity, plant, transform, sprite_render) in
             (&*entities, &mut plants, &transforms, &sprite_renders).join()
         {
+            plant_num += 1;
             if plant.life == 0 {
                 entities.delete(entity).expect("Failed to delete a plant.");
             } else {
@@ -65,6 +68,7 @@ impl<'s> System<'s> for PlantIncubator {
                 }
             }
         }
+        print!("{} ", plant_num);
 
         for (transform, sprite_render) in new_plants {
             entities
