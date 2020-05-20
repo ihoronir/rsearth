@@ -9,8 +9,8 @@ use amethyst::{
 use rand::Rng;
 
 // Earth
-pub const GROUND_HEIGHT: f32 = 1080.0;
-pub const GROUND_WIDTH: f32 = 1920.0;
+pub const GROUND_HEIGHT: f32 = 1440.0;
+pub const GROUND_WIDTH: f32 = 1440.0;
 
 // Plant
 pub const PLANT_MIN_LIFE: u32 = 200;
@@ -43,7 +43,7 @@ pub const CARNIVORE_REACHABLE_RANGE: f32 = 6.0;
 pub const CARNIVORE_MAX_SPEED: f32 = 160.0;
 pub const CARNIVORE_SEPARATION_DISTANCE: f32 = 10.0;
 pub const CARNIVORE_HERBIVORE_GRAVITY: f32 = 500.0;
-pub const CARNIVORE_VISIBLE_DISTANCE: f32 = 100.0;
+pub const CARNIVORE_VISIBLE_DISTANCE: f32 = 300.0;
 
 // Velocity
 

@@ -1,4 +1,4 @@
 (
   title: "RSEARTH",
-  dimensions: Some((1920, 1080))
+  dimensions: Some((720, 720))
 )

@@ -1,8 +1,8 @@
 use crate::earth::{Herbivore, Plant, HERBIVORE_REACHABLE_RANGE};
 use amethyst::{
-    core::{SystemDesc, Transform},
+    core::Transform,
     derive::SystemDesc,
-    ecs::{Entities, Join, ReadStorage, System, SystemData, World, WriteStorage},
+    ecs::{Entities, Join, ReadStorage, System, SystemData, WriteStorage},
 };
 
 #[derive(SystemDesc)]

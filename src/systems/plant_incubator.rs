@@ -3,9 +3,9 @@ use crate::earth::{
     PLANT_MIN_LIFE, PLANT_SEPARATION_DISTANCE,
 };
 use amethyst::{
-    core::{SystemDesc, Transform},
+    core::Transform,
     derive::SystemDesc,
-    ecs::{Entities, Join, System, SystemData, World, WriteStorage},
+    ecs::{Entities, Join, System, SystemData, WriteStorage},
     renderer::SpriteRender,
 };
 use rand::Rng;

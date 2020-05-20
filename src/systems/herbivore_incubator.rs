@@ -3,9 +3,9 @@ use crate::earth::{
     HERBIVORE_MAX_SPEED, HERBIVORE_MIN_LIFE, HERBIVORE_SEPARATION_DISTANCE,
 };
 use amethyst::{
-    core::{SystemDesc, Transform},
+    core::Transform,
     derive::SystemDesc,
-    ecs::{Entities, Join, System, SystemData, World, WriteStorage},
+    ecs::{Entities, Join, System, SystemData, WriteStorage},
     renderer::SpriteRender,
 };
 use rand::Rng;

@@ -1,8 +1,7 @@
 use crate::earth::Plant;
 use amethyst::{
-    core::SystemDesc,
     derive::SystemDesc,
-    ecs::{Join, System, SystemData, World, WriteStorage},
+    ecs::{Join, System, SystemData, WriteStorage},
 };
 use rand::Rng;
 

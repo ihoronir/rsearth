@@ -2,9 +2,9 @@ use crate::earth::{
     Acceleration, Plant, Velocity, PLANT_FRICTION, PLANT_SEPARATION, PLANT_SEPARATION_DISTANCE,
 };
 use amethyst::{
-    core::{SystemDesc, Transform},
+    core::Transform,
     derive::SystemDesc,
-    ecs::{Join, ParJoin, ReadStorage, System, SystemData, World, WriteStorage},
+    ecs::{Join, ParJoin, ReadStorage, System, SystemData, WriteStorage},
 };
 use rayon::prelude::*;
 

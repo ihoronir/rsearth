@@ -4,9 +4,9 @@ use crate::earth::{
     HERBIVORE_SEPARATION, HERBIVORE_SEPARATION_DISTANCE, HERBIVORE_VISIBLE_DISTANCE,
 };
 use amethyst::{
-    core::{SystemDesc, Transform},
+    core::Transform,
     derive::SystemDesc,
-    ecs::{Join, ParJoin, ReadStorage, System, SystemData, World, WriteStorage},
+    ecs::{Join, ParJoin, ReadStorage, System, SystemData, WriteStorage},
 };
 use rayon::prelude::*;
 
